@@ -15,13 +15,13 @@ func TestFetchRoutes(t *testing.T) {
 	tests := []struct {
 		name string
 
-		setupMock   func(*MockGobgpApiClient, *MockListPathClient)
+		setupMock   func(*MockGobgpAPIClient, *MockListPathClient)
 		expectError bool
 		expectPaths int
 	}{
 		{
 			name: "Successful fetch",
-			setupMock: func(client *MockGobgpApiClient, stream *MockListPathClient) {
+			setupMock: func(client *MockGobgpAPIClient, stream *MockListPathClient) {
 				stream.On("Recv").Return(&apipb.ListPathResponse{
 					Destination: &apipb.Destination{
 						Paths: []*apipb.Path{{}, {}},
@@ -35,7 +35,7 @@ func TestFetchRoutes(t *testing.T) {
 		},
 		{
 			name: "ListPath error",
-			setupMock: func(client *MockGobgpApiClient, stream *MockListPathClient) {
+			setupMock: func(client *MockGobgpAPIClient, _ *MockListPathClient) {
 				client.On("ListPath", mock.Anything, mock.Anything).Return(nil, errors.New("connection error"))
 			},
 			expectError: true,
@@ -45,7 +45,7 @@ func TestFetchRoutes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockClient := new(MockGobgpApiClient)
+			mockClient := new(MockGobgpAPIClient)
 			mockStream := new(MockListPathClient)
 			tt.setupMock(mockClient, mockStream)
 
@@ -63,7 +63,9 @@ func TestFetchRoutes(t *testing.T) {
 	}
 }
 
+//revive:disable:cognitive-complexity
 func TestParseNlriToCIDR(t *testing.T) {
+	//revive:enable:cognitive-complexity
 	tests := []struct {
 		name        string
 		input       *anypb.Any
@@ -77,11 +79,11 @@ func TestParseNlriToCIDR(t *testing.T) {
 					PrefixLen: 24,
 					Prefix:    "192.168.1.0",
 				}
-				any, err := anypb.New(prefix)
+				a, err := anypb.New(prefix)
 				if err != nil {
 					t.Fatalf("failed to create Any message: %v", err)
 				}
-				return any
+				return a
 			}(),
 			expected:    "192.168.1.0/24",
 			expectError: false,
@@ -93,11 +95,11 @@ func TestParseNlriToCIDR(t *testing.T) {
 					PrefixLen: 0,
 					Prefix:    "",
 				}
-				any, err := anypb.New(prefix)
+				a, err := anypb.New(prefix)
 				if err != nil {
 					t.Fatalf("failed to create Any message: %v", err)
 				}
-				return any
+				return a
 			}(),
 			expected:    "",
 			expectError: true,

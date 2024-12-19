@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 
 	apipb "github.com/osrg/gobgp/v3/api"
 	"github.com/stretchr/testify/mock"
@@ -10,8 +11,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// Mock GobgpApiClient
-type MockGobgpApiClient struct {
+// Mock GobgpAPIClient
+type MockGobgpAPIClient struct {
 	mock.Mock
 }
 
@@ -26,236 +27,302 @@ type MockAddBmpClient struct {
 
 func (m *MockListPathClient) Recv() (*apipb.ListPathResponse, error) {
 	args := m.Called()
-	return args.Get(0).(*apipb.ListPathResponse), args.Error(1)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	resp, ok := args.Get(0).(*apipb.ListPathResponse)
+	if !ok {
+		return nil, errors.New("invalid response type")
+	}
+	return resp, args.Error(1)
 }
 
-func (m *MockListPathClient) RecvMsg(interface{}) error    { return nil }
-func (m *MockListPathClient) SendMsg(interface{}) error    { return nil }
-func (m *MockListPathClient) Header() (metadata.MD, error) { return nil, nil }
-func (m *MockListPathClient) Trailer() metadata.MD         { return nil }
-func (m *MockListPathClient) CloseSend() error             { return nil }
-func (m *MockListPathClient) Context() context.Context     { return context.Background() }
+func (*MockListPathClient) RecvMsg(any) error            { return nil }
+func (*MockListPathClient) SendMsg(any) error            { return nil }
+func (*MockListPathClient) Header() (metadata.MD, error) { return nil, nil }
+func (*MockListPathClient) Trailer() metadata.MD         { return nil }
+func (*MockListPathClient) CloseSend() error             { return nil }
+func (*MockListPathClient) Context() context.Context     { return context.Background() }
 
-func (m *MockGobgpApiClient) ListPath(ctx context.Context, in *apipb.ListPathRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListPathClient, error) {
+func (m *MockGobgpAPIClient) ListPath(ctx context.Context, in *apipb.ListPathRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListPathClient, error) {
 	args := m.Called(ctx, in)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(apipb.GobgpApi_ListPathClient), args.Error(1)
+	client, ok := args.Get(0).(apipb.GobgpApi_ListPathClient)
+	if !ok {
+		return nil, errors.New("invalid client type")
+	}
+	return client, args.Error(1)
 }
 
-func (m *MockGobgpApiClient) AddBmp(ctx context.Context, in *apipb.AddBmpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddBmp(_ context.Context, _ *apipb.AddBmpRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddDefinedSet(ctx context.Context, in *apipb.AddDefinedSetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddDefinedSet(_ context.Context, _ *apipb.AddDefinedSetRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddDynamicNeighbor(ctx context.Context, in *apipb.AddDynamicNeighborRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddDynamicNeighbor(_ context.Context, _ *apipb.AddDynamicNeighborRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPath(ctx context.Context, in *apipb.AddPathRequest, opts ...grpc.CallOption) (*apipb.AddPathResponse, error) {
+func (*MockGobgpAPIClient) AddPath(_ context.Context, _ *apipb.AddPathRequest,
+	_ ...grpc.CallOption) (*apipb.AddPathResponse, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPathStream(ctx context.Context, opts ...grpc.CallOption) (apipb.GobgpApi_AddPathStreamClient, error) {
+func (*MockGobgpAPIClient) AddPathStream(_ context.Context,
+	_ ...grpc.CallOption) (apipb.GobgpApi_AddPathStreamClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPeer(ctx context.Context, in *apipb.AddPeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddPeer(_ context.Context, _ *apipb.AddPeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPeerGroup(ctx context.Context, in *apipb.AddPeerGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddPeerGroup(_ context.Context, _ *apipb.AddPeerGroupRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPolicy(ctx context.Context, in *apipb.AddPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddPolicy(_ context.Context, _ *apipb.AddPolicyRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddRpki(ctx context.Context, in *apipb.AddRpkiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddRpki(_ context.Context, _ *apipb.AddRpkiRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddStatement(ctx context.Context, in *apipb.AddStatementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddStatement(_ context.Context, _ *apipb.AddStatementRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddVrf(ctx context.Context, in *apipb.AddVrfRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddVrf(_ context.Context, _ *apipb.AddVrfRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteBmp(ctx context.Context, in *apipb.DeleteBmpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteBmp(_ context.Context, _ *apipb.DeleteBmpRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteDefinedSet(ctx context.Context, in *apipb.DeleteDefinedSetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteDefinedSet(_ context.Context, _ *apipb.DeleteDefinedSetRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeletePath(ctx context.Context, in *apipb.DeletePathRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeletePath(_ context.Context, _ *apipb.DeletePathRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeletePeer(ctx context.Context, in *apipb.DeletePeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeletePeer(_ context.Context, _ *apipb.DeletePeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeletePeerGroup(ctx context.Context, in *apipb.DeletePeerGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeletePeerGroup(_ context.Context, _ *apipb.DeletePeerGroupRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeletePolicy(ctx context.Context, in *apipb.DeletePolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeletePolicy(_ context.Context, _ *apipb.DeletePolicyRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteRpki(ctx context.Context, in *apipb.DeleteRpkiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteRpki(_ context.Context, _ *apipb.DeleteRpkiRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteStatement(ctx context.Context, in *apipb.DeleteStatementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteStatement(_ context.Context, _ *apipb.DeleteStatementRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteVrf(ctx context.Context, in *apipb.DeleteVrfRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteVrf(_ context.Context, _ *apipb.DeleteVrfRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DisableMrt(ctx context.Context, in *apipb.DisableMrtRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DisableMrt(_ context.Context, _ *apipb.DisableMrtRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DisablePeer(ctx context.Context, in *apipb.DisablePeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DisablePeer(_ context.Context, _ *apipb.DisablePeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DisableRpki(ctx context.Context, in *apipb.DisableRpkiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DisableRpki(_ context.Context, _ *apipb.DisableRpkiRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) EnableMrt(ctx context.Context, in *apipb.EnableMrtRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) EnableMrt(_ context.Context, _ *apipb.EnableMrtRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) EnablePeer(ctx context.Context, in *apipb.EnablePeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) EnablePeer(_ context.Context, _ *apipb.EnablePeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) EnableRpki(ctx context.Context, in *apipb.EnableRpkiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) EnableRpki(_ context.Context, _ *apipb.EnableRpkiRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) GetBgp(ctx context.Context, in *apipb.GetBgpRequest, opts ...grpc.CallOption) (*apipb.GetBgpResponse, error) {
+func (*MockGobgpAPIClient) GetBgp(_ context.Context, _ *apipb.GetBgpRequest,
+	_ ...grpc.CallOption) (*apipb.GetBgpResponse, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ResetPeer(ctx context.Context, in *apipb.ResetPeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) ResetPeer(_ context.Context, _ *apipb.ResetPeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ResetRpki(ctx context.Context, in *apipb.ResetRpkiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) ResetRpki(_ context.Context, _ *apipb.ResetRpkiRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) SetLogLevel(ctx context.Context, in *apipb.SetLogLevelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) SetLogLevel(_ context.Context, _ *apipb.SetLogLevelRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ShutdownPeer(ctx context.Context, in *apipb.ShutdownPeerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) ShutdownPeer(_ context.Context, _ *apipb.ShutdownPeerRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) AddPolicyAssignment(ctx context.Context, in *apipb.AddPolicyAssignmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) AddPolicyAssignment(_ context.Context, _ *apipb.AddPolicyAssignmentRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeleteDynamicNeighbor(ctx context.Context, in *apipb.DeleteDynamicNeighborRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeleteDynamicNeighbor(_ context.Context, _ *apipb.DeleteDynamicNeighborRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) DeletePolicyAssignment(ctx context.Context, in *apipb.DeletePolicyAssignmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) DeletePolicyAssignment(_ context.Context, _ *apipb.DeletePolicyAssignmentRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) EnableZebra(ctx context.Context, in *apipb.EnableZebraRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) EnableZebra(_ context.Context, _ *apipb.EnableZebraRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) GetTable(ctx context.Context, in *apipb.GetTableRequest, opts ...grpc.CallOption) (*apipb.GetTableResponse, error) {
+func (*MockGobgpAPIClient) GetTable(_ context.Context, _ *apipb.GetTableRequest,
+	_ ...grpc.CallOption) (*apipb.GetTableResponse, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListBmp(ctx context.Context, in *apipb.ListBmpRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListBmpClient, error) {
+func (*MockGobgpAPIClient) ListBmp(_ context.Context, _ *apipb.ListBmpRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListBmpClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListDefinedSet(ctx context.Context, in *apipb.ListDefinedSetRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListDefinedSetClient, error) {
+func (*MockGobgpAPIClient) ListDefinedSet(_ context.Context, _ *apipb.ListDefinedSetRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListDefinedSetClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListDynamicNeighbor(ctx context.Context, in *apipb.ListDynamicNeighborRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListDynamicNeighborClient, error) {
+func (*MockGobgpAPIClient) ListDynamicNeighbor(_ context.Context, _ *apipb.ListDynamicNeighborRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListDynamicNeighborClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListPeer(ctx context.Context, in *apipb.ListPeerRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListPeerClient, error) {
+func (*MockGobgpAPIClient) ListPeer(_ context.Context, _ *apipb.ListPeerRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListPeerClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListPeerGroup(ctx context.Context, in *apipb.ListPeerGroupRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListPeerGroupClient, error) {
+func (*MockGobgpAPIClient) ListPeerGroup(_ context.Context, _ *apipb.ListPeerGroupRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListPeerGroupClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListPolicy(ctx context.Context, in *apipb.ListPolicyRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListPolicyClient, error) {
+func (*MockGobgpAPIClient) ListPolicy(_ context.Context, _ *apipb.ListPolicyRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListPolicyClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListPolicyAssignment(ctx context.Context, in *apipb.ListPolicyAssignmentRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListPolicyAssignmentClient, error) {
+func (*MockGobgpAPIClient) ListPolicyAssignment(_ context.Context, _ *apipb.ListPolicyAssignmentRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListPolicyAssignmentClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListRpki(ctx context.Context, in *apipb.ListRpkiRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListRpkiClient, error) {
+func (*MockGobgpAPIClient) ListRpki(_ context.Context, _ *apipb.ListRpkiRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListRpkiClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListRpkiTable(ctx context.Context, in *apipb.ListRpkiTableRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListRpkiTableClient, error) {
+func (*MockGobgpAPIClient) ListRpkiTable(_ context.Context, _ *apipb.ListRpkiTableRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListRpkiTableClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListStatement(ctx context.Context, in *apipb.ListStatementRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListStatementClient, error) {
+func (*MockGobgpAPIClient) ListStatement(_ context.Context, _ *apipb.ListStatementRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListStatementClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) ListVrf(ctx context.Context, in *apipb.ListVrfRequest, opts ...grpc.CallOption) (apipb.GobgpApi_ListVrfClient, error) {
+func (*MockGobgpAPIClient) ListVrf(_ context.Context, _ *apipb.ListVrfRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_ListVrfClient, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) SetPolicies(ctx context.Context, in *apipb.SetPoliciesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) SetPolicies(_ context.Context, _ *apipb.SetPoliciesRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) SetPolicyAssignment(ctx context.Context, in *apipb.SetPolicyAssignmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) SetPolicyAssignment(_ context.Context, _ *apipb.SetPolicyAssignmentRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) StartBgp(ctx context.Context, in *apipb.StartBgpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) StartBgp(_ context.Context, _ *apipb.StartBgpRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) StopBgp(ctx context.Context, in *apipb.StopBgpRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (*MockGobgpAPIClient) StopBgp(_ context.Context, _ *apipb.StopBgpRequest,
+	_ ...grpc.CallOption) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) UpdatePeer(ctx context.Context, in *apipb.UpdatePeerRequest, opts ...grpc.CallOption) (*apipb.UpdatePeerResponse, error) {
+func (*MockGobgpAPIClient) UpdatePeer(_ context.Context, _ *apipb.UpdatePeerRequest,
+	_ ...grpc.CallOption) (*apipb.UpdatePeerResponse, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) UpdatePeerGroup(ctx context.Context, in *apipb.UpdatePeerGroupRequest, opts ...grpc.CallOption) (*apipb.UpdatePeerGroupResponse, error) {
+func (*MockGobgpAPIClient) UpdatePeerGroup(_ context.Context, _ *apipb.UpdatePeerGroupRequest,
+	_ ...grpc.CallOption) (*apipb.UpdatePeerGroupResponse, error) {
 	return nil, nil
 }
 
-func (m *MockGobgpApiClient) WatchEvent(ctx context.Context, in *apipb.WatchEventRequest, opts ...grpc.CallOption) (apipb.GobgpApi_WatchEventClient, error) {
+func (*MockGobgpAPIClient) WatchEvent(_ context.Context, _ *apipb.WatchEventRequest,
+	_ ...grpc.CallOption) (apipb.GobgpApi_WatchEventClient, error) {
 	return nil, nil
 }

@@ -7,7 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//revive:disable:cognitive-complexity
 func TestLoad(t *testing.T) {
+	//revive:enable:cognitive-complexity
 	// Test cases
 	tests := []struct {
 		name        string

@@ -7,18 +7,15 @@ import (
 
 	apipb "github.com/osrg/gobgp/v3/api"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-// Mock implementations
-type MockGobgpApiClient struct {
-	mock.Mock
-}
-
 // Tests
+//
+//revive:disable:cognitive-complexity
 func TestSetupConnection(t *testing.T) {
+	//revive:enable:cognitive-complexity
 	tests := []struct {
 		name        string
 		configPath  string
@@ -80,7 +77,7 @@ func TestHandleStreamError(t *testing.T) {
 	}
 }
 
-func TestHandleRoutePaths(t *testing.T) {
+func TestHandleRoutePaths(_ *testing.T) {
 	paths := []*apipb.Path{
 		{
 			Nlri: &anypb.Any{
