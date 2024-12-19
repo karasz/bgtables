@@ -92,7 +92,7 @@ func loadConfig(configPath string) *config.Config {
 }
 
 func createGRPCClient(cfg *config.Config) *grpc.ClientConn {
-	conn, err := grpc.Dial(cfg.GoBGPServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(cfg.GoBGPServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Error creating gRPC client: %v", err)
 	}
