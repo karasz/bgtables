@@ -1,4 +1,4 @@
-module github.com/karasz/gobgpnet
+module github.com/karasz/bgtables
 
 go 1.23.4
 

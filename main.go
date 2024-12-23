@@ -6,8 +6,8 @@ import (
 	"io"
 	"log"
 
-	"github.com/karasz/gobgpnet/config"
-	"github.com/karasz/gobgpnet/routes"
+	"github.com/karasz/bgtables/config"
+	"github.com/karasz/bgtables/routes"
 
 	apipb "github.com/osrg/gobgp/v3/api"
 	"google.golang.org/grpc"
