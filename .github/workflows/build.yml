@@ -22,5 +22,6 @@ jobs:
         go-version: ${{ matrix.go }}
     - name: Build
       run: make
-    - name: Test
-      run: make test
+      # Do not run tests on github, they will fail to manipulate kernel routes
+      #    - name: Test
+      #      run: make test
