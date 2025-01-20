@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"log"
+	"os"
 
 	"github.com/karasz/bgtables/config"
 	"github.com/karasz/bgtables/routes"
@@ -15,7 +16,10 @@ import (
 )
 
 func main() {
-	_, client, conn := setupConnection("config.yaml")
+	cf, client, conn := setupConnection("config.yaml")
+	if cf == nil {
+		os.Exit(1)
+	}
 	defer conn.Close()
 
 	stream := setupRouteStream(client)
@@ -87,14 +91,19 @@ func loadConfig(configPath string) *config.Config {
 	cfg, err := config.Load(configPath)
 	if err != nil {
 		log.Printf("Error loading config: %v", err)
+		return nil
 	}
 	return cfg
 }
 
 func createGRPCClient(cfg *config.Config) *grpc.ClientConn {
-	conn, err := grpc.NewClient(cfg.GoBGPServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Printf("Error creating gRPC client: %v", err)
+	if cfg != nil {
+		conn, err := grpc.NewClient(cfg.GoBGPServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Printf("Error creating gRPC client: %v", err)
+			return nil
+		}
+		return conn
 	}
-	return conn
+	return nil
 }
