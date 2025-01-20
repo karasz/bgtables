@@ -1,12 +1,12 @@
-# GoBGPNet
+# BGTables
 
-# BGTables is an agent for configuring linux network stack via [GoBGP](https://github.com/osrg/gobgp)
+# BGTables is an agent for configuring linux network stack via [BGP](https://en.wikipedia.org/wiki/Border_Gateway_Protocol)
 
 ```
     +=========================+
-    |          GoBGP          |
+    |          BGP server     |
     +=========================+
-                 | <- gRPC API
+                 | <- BGP Protocol
     +=========================+
     |        BGTables         |
     +=========================+

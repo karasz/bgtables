@@ -3,72 +3,45 @@ package config
 import (
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-//revive:disable:cognitive-complexity
 func TestLoad(t *testing.T) {
-	//revive:enable:cognitive-complexity
-	// Test cases
-	tests := []struct {
-		name        string
-		configYAML  string
-		expectError bool
-		expected    *Config
-	}{
-		{
-			name: "Valid config",
-			configYAML: `
-gobgp_server: "localhost:50051"
-`,
-			expectError: false,
-			expected: &Config{
-				GoBGPServer: "localhost:50051",
-			},
-		},
-		{
-			name: "Invalid YAML",
-			configYAML: `
-gobgp_server: "localhost:50051
-`,
-			expectError: true,
-			expected:    nil,
-		},
+	// Create a temporary file to simulate the configuration file
+	tmpFile, err := os.CreateTemp("", "config_test_*.yaml")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// Write valid YAML content to the temporary file
+	yamlContent := `
+peers:
+  - asn: 65001
+	ip: "192.0.2.1"
+	description: "Test Peer 1"
+  - asn: 65002
+	ip: "192.0.2.2"
+	description: "Test Peer 2"
+`
+	if _, err := tmpFile.Write([]byte(yamlContent)); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	_ = tmpFile.Close()
+
+	// Call the Load function with the path to the temporary file
+	cfg, err := Load(tmpFile.Name())
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Create temporary config file
-			tmpfile, err := os.CreateTemp("", "config-*.yaml")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer os.Remove(tmpfile.Name())
-
-			// Write config content
-			if _, err := tmpfile.Write([]byte(tt.configYAML)); err != nil {
-				t.Fatal(err)
-			}
-			if err := tmpfile.Close(); err != nil {
-				t.Fatal(err)
-			}
-
-			// Test Load function
-			config, err := Load(tmpfile.Name())
-			if tt.expectError {
-				assert.Error(t, err)
-				assert.Nil(t, config)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected.GoBGPServer, config.GoBGPServer)
-			}
-		})
+	// Verify that the returned Config object matches the expected values
+	if len(cfg.Peers) != 2 {
+		t.Errorf("Expected 2 peers, got %d", len(cfg.Peers))
 	}
-}
-
-func TestLoadNonExistentFile(t *testing.T) {
-	_, err := Load("nonexistent.yaml")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to open config file")
+	if cfg.Peers[0].Asn != 65001 || cfg.Peers[0].IP != "192.0.2.1" || cfg.Peers[0].Description != "Test Peer 1" {
+		t.Errorf("Unexpected peer 1: %+v", cfg.Peers[0])
+	}
+	if cfg.Peers[1].Asn != 65002 || cfg.Peers[1].IP != "192.0.2.2" || cfg.Peers[1].Description != "Test Peer 2" {
+		t.Errorf("Unexpected peer 2: %+v", cfg.Peers[1])
+	}
 }

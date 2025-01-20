@@ -2,15 +2,31 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
-	"gopkg.in/yaml.v3"
+	"darvaza.org/slog"
+	"gopkg.in/yaml.v2"
+
+	"darvaza.org/slog/handlers/discard"
+	"darvaza.org/x/config"
 )
 
-// Config represents the configuration for the application.
+// Peer describes a BGP peer.
+type Peer struct {
+	Asn         uint32 `yaml:"asn"`
+	IP          string `yaml:"ip"`
+	Description string `yaml:"description"`
+}
+
+// Config describes the internal BGP Server.
 type Config struct {
-	GoBGPServer string `yaml:"gobgp_server"`
+	Logger          slog.Logger
+	Context         context.Context
+	Peers           []Peer
+	GracefulTimeout time.Duration
 }
 
 // Load loads the configuration from the given file path.
@@ -21,11 +37,26 @@ func Load(path string) (*Config, error) {
 	}
 	defer file.Close()
 
-	var config Config
+	var cfg Config
+
 	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
+	if err := decoder.Decode(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to decode config file: %w", err)
 	}
+	_ = cfg.SetDefaults()
 
-	return &config, nil
+	return &cfg, nil
+}
+
+// SetDefaults fills gaps in the [Config].
+func (sc *Config) SetDefaults() error {
+	if sc.Context == nil {
+		sc.Context = context.Background()
+	}
+
+	if sc.Logger == nil {
+		sc.Logger = discard.New()
+	}
+
+	return config.Set(sc)
 }

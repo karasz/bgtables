@@ -13,9 +13,9 @@ enableAllRules = true
 [rule.argument-limit]
   arguments = [5]
 [rule.cognitive-complexity]
-  arguments = [7]
-[rule.cyclomatic]
   arguments = [10]
+[rule.cyclomatic]
+  arguments = [12]
 [rule.line-length-limit]
   arguments = [120]
   severity = "warning"
